@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+
+       <meta charset="UTF-8">
+       <title>Translate game</title>
+       <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+
+       <script>
+
+          $( document ).ready(function() {
+
+            console.log("document loaded");
+    
+            if ("speechSynthesis" in window) {
+               console.log("browser supports speech synthesis.");
+            } else {
+               console.log("browser does NOT support speech sythesis.")
+            }
+
+           
+        
+       });
+          var score = 0;
+          var strikes = 3;
+          var randNum;
+
+          function readaloud(){
+
+           enableCheck();
+
+           randNum = Math.round(Math.exp(Math.random()*Math.log(10000000-0+1)));
+
+           var speed = $("#speed").val();
+
+           var msg = randNum;
+           var utterance = new SpeechSynthesisUtterance();
+           utterance.text = msg;
+           utterance.rate = speed;
+           speechSynthesis.speak(utterance);
+
+          //clear answer div
+          $("#ansResult").html("");
+           
+         }
+
+         function checkAns(){
+
+          var inAns = $("#answer").val();
+
+          if (inAns == randNum) {
+            $("#ansResult").html("O");
+            console.log("answer correct");
+            score++;
+            console.log(score);
+
+            disableCheck();
+
+          } else {
+            $("#ansResult").html("X");
+            console.log("answer incorrect");
+            strikes--;
+            console.log("strike count:" + strikes);
+              if (strikes == 0) {
+                $("#ansResult").html("GAMEOVER");
+                disableEv();
+                document.getElementById("newGame").hidden = false;
+                
+              }
+            
+          }
+
+
+         }
+
+         function newGame(){
+          strikes = 3;
+          enableEv();
+          document.getElementById("newGame").hidden = true;
+          $("#ansResult").html("");
+
+         }
+
+         function disableCheck(){
+          document.getElementById("ansBut").disabled = true;
+         }
+
+         function enableCheck(){
+          document.getElementById("ansBut").disabled = false;
+         }
+
+         function disableEv(){
+          document.getElementById("speakbtn").disabled = true;
+          document.getElementById("ansBut").disabled = true;
+          document.getElementById("answer").disabled = true;
+         }
+
+         function enableEv(){
+          document.getElementById("speakbtn").disabled = false;
+          document.getElementById("ansBut").disabled = false;
+          document.getElementById("answer").disabled = false;
+         }
+</script>
+ 
+   </head>
+   
+<body>
+        <!--<input type="text" id="speech-input" value="42" x-webkit-speech>-->
+        <input type="button" id="speakbtn" onclick="readaloud()" value="Speak"/>
+        <input type="text" id="answer" value="enter answer" />
+        <input type="button" id="ansBut" onclick="checkAns()" value="Check translation"/>
+        <input type="button" id="newGame" onclick="newGame()" value="Play again" hidden="true"/>
+        <br>
+        <div id="ansResult">
+        </div>
+        
+        <br>
+        <div class="options" id="speeddiv">
+        <br>Slow
+        <input id="speed" type="range" min="0.1" max="1.7" step="0.1" defaultValue=".0.8"/>
+        Fast
+          
+        </div>
+
+ </body>
+ 
+</html>

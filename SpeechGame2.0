@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+
+       <meta charset="UTF-8">
+
+
+       <title>Translate game</title>
+
+       <meta name="viewport" content="width=device-width, initial-scale=1">
+
+       <link rel="stylesheet" type="text/css" href="speechcss" />
+
+       <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+
+
+       <script>
+
+          $( document ).ready(function() {
+
+            console.log("document loaded");
+    
+            if ("speechSynthesis" in window) {
+               console.log("browser supports speech synthesis.");
+            } else {
+               console.log("browser does NOT support speech sythesis.")
+            }
+
+            //WATERMARK 
+           var watermark = 'Enter number';
+ 
+           //init, set watermark text and class
+            $('#answer').val(watermark).addClass('watermark');
+ 
+            //if blur and no value inside, set watermark text and class again.
+            $('#answer').blur(function(){
+            if ($(this).val().length == 0){
+            $(this).val(watermark).addClass('watermark');
+            }
+          });
+ 
+            //if focus and text is watermark, set it to empty and remove the watermark class
+            $('#answer').focus(function(){
+            if ($(this).val() == watermark){
+             $(this).val('').removeClass('watermark');
+           }
+         });
+
+           
+        
+       });
+          var score = 0;
+          var strikes = 0;
+          var randNum;
+
+          function readaloud(){
+
+           enableCheck();
+
+           randNum = Math.round(Math.exp(Math.random()*Math.log(10000000-0+1)));
+           console.log("Random number = " + randNum);
+
+           var speed = $("#speed").val();
+           var language = $("#lang").val();
+
+           var msg = randNum;
+           var utterance = new SpeechSynthesisUtterance();
+           utterance.text = msg;
+           utterance.rate = speed;
+           utterance.lang = language;
+           speechSynthesis.speak(utterance);
+
+          //clear answer div
+          $("#ansResult").html("");
+           
+         }
+
+         function checkAns(){
+
+          var inAns = $("#answer").val();
+ 
+          if (inAns == randNum) {
+            $("#ansResult").html("O");
+            console.log("answer correct");
+            score++;
+            console.log("score = " + score);
+            
+            $("#score").html(score);
+
+            disableCheck(); //prevent score whoring
+
+          } else {
+            $("#ansResult").html("X");
+            console.log("answer incorrect");
+            strikes++;
+            console.log("strike count:" + strikes);
+            $("#strikes").html(strikes);
+            if (strikes == 3) {
+                $("#ansResult").html("GAMEOVER");
+                disableEv();
+                document.getElementById("newGame").hidden = false;
+                
+              }
+            
+          }
+
+
+         }
+
+         function newGame(){
+          strikes = 3;
+          enableEv();
+          document.getElementById("newGame").hidden = true;
+          $("#ansResult").html("");
+
+         }
+
+         function disableCheck(){
+          document.getElementById("ansBut").disabled = true;
+         }
+
+         function enableCheck(){
+          document.getElementById("ansBut").disabled = false;
+         }
+
+         function disableEv(){
+          document.getElementById("speakbtn").disabled = true;
+          document.getElementById("ansBut").disabled = true;
+          document.getElementById("answer").disabled = true;
+         }
+
+         function enableEv(){
+          document.getElementById("speakbtn").disabled = false;
+          document.getElementById("ansBut").disabled = false;
+          document.getElementById("answer").disabled = false;
+         }
+</script>
+
+<style type="text/css">
+
+    input.watermark { color: #999; }
+
+    
+
+</style>
+ 
+   </head>
+   
+<body>
+        <!--<input type="text" id="speech-input" value="42" x-webkit-speech>-->
+        <input type="button" class="btn" id="speakbtn" onclick="readaloud()" value="Speak"/>
+        <input type="text" id="answer" value="enter number" />
+        <input type="submit" class="btn" id="ansBut" onclick="checkAns()" value="Check Ans"/>
+        <input type="button" class="btn" id="newGame" onclick="newGame()" value="Play again" hidden="true"/>
+        <br>
+        <div id="bottomElements">
+        <div id="ansResult">
+        </div>
+        
+        <br>
+        <div class="options" id="speeddiv">
+        <br>Slow
+        <input id="speed" type="range" min="0.1" max="1.7" step="0.1" defaultValue=".0.8"/>
+        Fast
+
+        <div id="scoreboard" >
+
+            <br>
+            Score: <span id="score">0</span> &nbsp&nbsp&nbsp Strikes: <span id="strikes">0</span>
+          
+        </div>
+
+        <select id="lang">
+          <option value="en-US">English (US)</option>
+          <option value="en-GB">English (UK)</option>
+          <option value="es-MX">Español (MX)</option>
+          <option value="ja">日本語</option>
+          <option value="pt-BR">Portuguese (BR)</option>
+          <option value="ru">Русский</option>
+          <option value="th">ภาษาไทย</option>
+        </select>
+
+        </div>
+
+ </body>
+ 
+</html>

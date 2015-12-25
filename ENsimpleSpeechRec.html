@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <title>EN Speech to Number</title>
+  <script src="graham-word-to-number.js"></script>
+  
+  </head>
+  <body>
+  <textarea id="transcription" readonly="readonly"></textarea> <button id="toggleSpeechButton">Start Speech Recognition</button>
+  <br>
+  <div id="output"></div>
+   
+  
+  <script type="text/javascript">
+    // Test browser support
+      window.SpeechRecognition = window.SpeechRecognition       ||
+                                 window.webkitSpeechRecognition ||
+                                 null;
+
+      if (window.SpeechRecognition === null) {
+        document.getElementById("toggleSpeechButton").setAttribute('disabled', 'disabled');
+      } else {
+        var recognizer = new window.SpeechRecognition();
+        var transcription = document.getElementById("transcription");
+        var toggleSpeech = document.getElementById("toggleSpeechButton")
+        
+
+        // Recogniser doesn't stop listening even if the user pauses
+        recognizer.continuous = true;
+        recognizer.lang = "en";
+
+        // Start recognising
+        recognizer.onresult = function(event) {
+          transcription.innerHTML = "";
+
+          for (var i = event.resultIndex; i < event.results.length; i++) {
+            if (event.results[i].isFinal) {
+              transcription.innerHTML = convert(event.results[i][0].transcript);
+            } else {
+              transcription.innerHTML += event.results[i][0].transcript;
+            }
+          }
+        };
+
+        // Listen for errors
+        recognizer.onerror = function(event) {
+          console.log("Recognition error:"  + event.message);
+        };
+
+        document.getElementById("toggleSpeechButton").addEventListener('click', function() {
+          
+          if (toggleSpeech.innerHTML === "Start Speech Recognition"){
+
+          try {
+            recognizer.start();
+            console.log("Recognition started");
+          } catch(ex) {
+            console.log("Recognition error: " + ex.message);
+          }
+          toggleSpeech.innerHTML = "Stop Recognition";
+          }else {
+          recognizer.stop();
+          console.log("Recognition stopped");
+          toggleSpeech.innerHTML = "Start Speech Recognition";
+          }
+        });
+      }
+  
+  </script>
+
+
+  
+
+  </body>
+</html>
